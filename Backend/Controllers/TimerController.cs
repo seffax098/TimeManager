@@ -17,6 +17,7 @@ public sealed class TimerController(AppDbContext dbContext) : ControllerBase
     public async Task<ActionResult<StartTimerResponse>> Start([FromBody] StartTimerRequest request, CancellationToken cancellationToken)
     {
         var userId = User.GetRequiredUserId();
+
         var hasActiveSession = await dbContext.WorkSessions.AnyAsync(
             x => x.UserId == userId && x.Status != SessionStatus.completed,
             cancellationToken);
@@ -27,14 +28,20 @@ public sealed class TimerController(AppDbContext dbContext) : ControllerBase
         }
 
         var now = DateTimeOffset.UtcNow;
+
         var session = new WorkSession
         {
             SessionId = Guid.NewGuid(),
             UserId = userId,
             WorkDate = request.Date ?? DateOnly.FromDateTime(now.UtcDateTime),
             StartedAt = now,
+            EndedAt = null,
+            TotalSeconds = 0,
+            WorkTimeSec = 0,
+            RestTimeSec = 0,
             Status = SessionStatus.active,
-            CreatedAt = now
+            CreatedAt = now,
+            UpdatedAt = now
         };
 
         dbContext.WorkSessions.Add(session);
@@ -47,6 +54,7 @@ public sealed class TimerController(AppDbContext dbContext) : ControllerBase
     public async Task<ActionResult<StopTimerResponse>> Stop([FromBody] StopTimerRequest request, CancellationToken cancellationToken)
     {
         var userId = User.GetRequiredUserId();
+
         var session = await dbContext.WorkSessions
             .FirstOrDefaultAsync(x => x.SessionId == request.SessionId && x.UserId == userId, cancellationToken);
 
@@ -60,17 +68,21 @@ public sealed class TimerController(AppDbContext dbContext) : ControllerBase
             return Conflict(new { message = "Сессия уже завершена." });
         }
 
-        session.EndedAt = DateTimeOffset.UtcNow;
+        var endedAt = DateTimeOffset.UtcNow;
+        var elapsedSeconds = (int)Math.Max(0, (endedAt - session.StartedAt).TotalSeconds);
+
+        session.EndedAt = endedAt;
+        session.TotalSeconds = Math.Max(session.TotalSeconds, elapsedSeconds);
         session.Status = SessionStatus.completed;
+        session.UpdatedAt = endedAt;
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var totalSeconds = (int)Math.Max(0, (session.EndedAt.Value - session.StartedAt).TotalSeconds);
         return Ok(new StopTimerResponse(
             session.SessionId,
             session.StartedAt,
             session.EndedAt.Value,
-            totalSeconds,
+            session.TotalSeconds,
             session.WorkTimeSec,
             session.RestTimeSec,
             session.Status));

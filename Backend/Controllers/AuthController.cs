@@ -33,6 +33,8 @@ public sealed class AuthController(
             return Conflict(new { message = "Пользователь с таким логином уже существует." });
         }
 
+        var now = DateTimeOffset.UtcNow;
+
         var user = new User
         {
             UserId = Guid.NewGuid(),
@@ -40,7 +42,8 @@ public sealed class AuthController(
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             FullName = normalizedFullName,
             Role = UserRole.employee,
-            CreatedAt = DateTimeOffset.UtcNow,
+            CreatedAt = now,
+            UpdatedAt = now,
             Settings = new UserSettings
             {
                 WorkTime = TimeSpan.FromHours(8.5),

@@ -11,6 +11,7 @@ public sealed class ReportService(AppDbContext dbContext)
     {
         var user = await dbContext.Users.AsNoTracking()
             .FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken);
+
         if (user is null)
         {
             return null;
@@ -32,15 +33,18 @@ public sealed class ReportService(AppDbContext dbContext)
         SessionInfoDto? sessionInfo = null;
         if (session is not null)
         {
-            var endedAt = session.EndedAt;
-            var totalSeconds = endedAt.HasValue
-                ? (int)Math.Max(0, (endedAt.Value - session.StartedAt).TotalSeconds)
+            var calculatedTotalSeconds = session.EndedAt.HasValue
+                ? (int)Math.Max(0, (session.EndedAt.Value - session.StartedAt).TotalSeconds)
                 : (int)Math.Max(0, (DateTimeOffset.UtcNow - session.StartedAt).TotalSeconds);
+
+            var totalSeconds = session.TotalSeconds > 0
+                ? Math.Max(session.TotalSeconds, calculatedTotalSeconds)
+                : calculatedTotalSeconds;
 
             sessionInfo = new SessionInfoDto(
                 session.SessionId,
                 session.StartedAt,
-                endedAt,
+                session.EndedAt,
                 totalSeconds,
                 session.Status == SessionStatus.active || session.Status == SessionStatus.paused);
         }
@@ -54,7 +58,11 @@ public sealed class ReportService(AppDbContext dbContext)
             sites);
     }
 
-    public async Task<AdminEmployeesResponse> BuildAdminEmployeesAsync(DateOnly date, string? sortBy, string? order, CancellationToken cancellationToken = default)
+    public async Task<AdminEmployeesResponse> BuildAdminEmployeesAsync(
+        DateOnly date,
+        string? sortBy,
+        string? order,
+        CancellationToken cancellationToken = default)
     {
         var employees = await dbContext.Users.AsNoTracking()
             .Where(x => x.Role == UserRole.employee)
@@ -68,6 +76,7 @@ public sealed class ReportService(AppDbContext dbContext)
             .Select(g => new
             {
                 UserId = g.Key,
+                TotalSeconds = g.Sum(x => x.TotalSeconds),
                 WorkTimeSec = g.Sum(x => x.WorkTimeSec),
                 RestTimeSec = g.Sum(x => x.RestTimeSec)
             })
@@ -76,9 +85,16 @@ public sealed class ReportService(AppDbContext dbContext)
         var result = employees.Select(employee =>
         {
             sessionLookup.TryGetValue(employee.UserId, out var totals);
+
             var workSec = totals?.WorkTimeSec ?? 0;
             var restSec = totals?.RestTimeSec ?? 0;
-            var totalSec = workSec + restSec;
+            var totalSec = totals?.TotalSeconds ?? 0;
+
+            if (totalSec == 0)
+            {
+                totalSec = workSec + restSec;
+            }
+
             var workPercent = totalSec == 0 ? 0 : Math.Round((decimal)workSec * 100m / totalSec, 2);
             var restPercent = totalSec == 0 ? 0 : Math.Round((decimal)restSec * 100m / totalSec, 2);
             var color = GetStatusColor(workPercent);
@@ -96,10 +112,14 @@ public sealed class ReportService(AppDbContext dbContext)
         return new AdminEmployeesResponse(date, ordered.Count, ordered);
     }
 
-    public async Task<AdminEmployeeDetailsResponse?> BuildAdminEmployeeDetailsAsync(Guid userId, DateOnly date, CancellationToken cancellationToken = default)
+    public async Task<AdminEmployeeDetailsResponse?> BuildAdminEmployeeDetailsAsync(
+        Guid userId,
+        DateOnly date,
+        CancellationToken cancellationToken = default)
     {
         var user = await dbContext.Users.AsNoTracking()
             .FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken);
+
         if (user is null)
         {
             return null;
@@ -136,7 +156,10 @@ public sealed class ReportService(AppDbContext dbContext)
             BuildSites(activities));
     }
 
-    private static IEnumerable<AdminEmployeeSummaryDto> ApplySorting(IEnumerable<AdminEmployeeSummaryDto> source, string? sortBy, string? order)
+    private static IEnumerable<AdminEmployeeSummaryDto> ApplySorting(
+        IEnumerable<AdminEmployeeSummaryDto> source,
+        string? sortBy,
+        string? order)
     {
         var desc = string.Equals(order, "desc", StringComparison.OrdinalIgnoreCase);
         var normalizedSort = sortBy?.Trim().ToLowerInvariant();
@@ -171,6 +194,7 @@ public sealed class ReportService(AppDbContext dbContext)
             .Select(group =>
             {
                 var totalDuration = group.Sum(x => x.DurationSec);
+
                 var dominantVerdict = group
                     .GroupBy(x => x.Verdict)
                     .OrderByDescending(x => x.Sum(v => v.DurationSec))

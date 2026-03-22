@@ -47,9 +47,13 @@ public sealed class ProfileController(AppDbContext dbContext) : ControllerBase
             return NotFound();
         }
 
+        var now = DateTimeOffset.UtcNow;
+        var hasChanges = false;
+
         if (!string.IsNullOrWhiteSpace(request.FullName))
         {
             user.FullName = request.FullName.Trim();
+            hasChanges = true;
         }
 
         if (request.Settings is not null)
@@ -60,19 +64,22 @@ public sealed class ProfileController(AppDbContext dbContext) : ControllerBase
                 && TimeSpan.TryParse(request.Settings.WorkTime, out var workTime))
             {
                 user.Settings.WorkTime = workTime;
+                hasChanges = true;
             }
 
             if (!string.IsNullOrWhiteSpace(request.Settings.Theme))
             {
                 user.Settings.Theme = request.Settings.Theme.Trim().ToLowerInvariant();
+                hasChanges = true;
             }
         }
 
         if (request.TechStack is not null)
         {
-            dbContext.TechStackItems.RemoveRange(user.TechStackItems);
+            var oldItems = user.TechStackItems.ToList();
+            dbContext.TechStackItems.RemoveRange(oldItems);
 
-            user.TechStackItems = request.TechStack
+            var newItems = request.TechStack
                 .OrderBy(x => x.Position)
                 .Select(x => new TechStackItem
                 {
@@ -80,10 +87,20 @@ public sealed class ProfileController(AppDbContext dbContext) : ControllerBase
                     UserId = user.UserId,
                     Name = x.Name.Trim(),
                     Position = x.Position,
-                    CreatedAt = DateTimeOffset.UtcNow,
-                    UpdatedAt = DateTimeOffset.UtcNow
+                    CreatedAt = now,
+                    UpdatedAt = now
                 })
                 .ToList();
+
+            user.TechStackItems = newItems;
+            await dbContext.TechStackItems.AddRangeAsync(newItems, cancellationToken);
+
+            hasChanges = true;
+        }
+
+        if (hasChanges)
+        {
+            user.UpdatedAt = now;
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);

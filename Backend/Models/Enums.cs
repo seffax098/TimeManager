@@ -26,3 +26,11 @@ public enum ReportStatusColor
     yellow = 2,
     red = 3
 }
+
+public enum ActivitySourceType
+{
+    browser = 1,
+    desktop_app = 2,
+    window = 3,
+    system = 4
+}

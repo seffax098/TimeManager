@@ -26,6 +26,7 @@ dataSourceBuilder.MapEnum<UserRole>("user_role");
 dataSourceBuilder.MapEnum<SessionStatus>("session_status");
 dataSourceBuilder.MapEnum<ActivityVerdict>("activity_verdict");
 dataSourceBuilder.MapEnum<ReportStatusColor>("report_status_color");
+dataSourceBuilder.MapEnum<ActivitySourceType>("activity_source_type");
 var dataSource = dataSourceBuilder.Build();
 
 builder.Services.AddSingleton(dataSource);
@@ -95,6 +96,12 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
+}
 
 var uploadsRoot = Path.Combine(app.Environment.ContentRootPath, "uploads");
 Directory.CreateDirectory(uploadsRoot);
