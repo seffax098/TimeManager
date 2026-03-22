@@ -64,7 +64,9 @@ public sealed record ActivityRequest(
     DateTimeOffset StartedAt,
     DateTimeOffset EndedAt,
     int DurationSec,
-    ActivityVerdict? Verdict);
+    ActivityVerdict? Verdict = null,
+    ActivitySourceType? SourceType = null,
+    string? SourceName = null);
 
 public sealed record ActivityResponse(
     Guid ActivityId,
@@ -73,7 +75,19 @@ public sealed record ActivityResponse(
     string Url,
     int DurationSec,
     ActivityVerdict Verdict,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt,
+    ActivitySourceType SourceType,
+    string? SourceName);
+
+public sealed record UpdateActivityVerdictRequest(ActivityVerdict Verdict);
+
+public sealed record UpdateActivityVerdictResponse(
+    Guid ActivityId,
+    Guid SessionId,
+    ActivityVerdict PreviousVerdict,
+    ActivityVerdict Verdict,
+    int WorkTime,
+    int RestTime);
 
 public sealed class CreateViolationRequest
 {

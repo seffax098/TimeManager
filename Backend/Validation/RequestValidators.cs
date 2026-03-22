@@ -47,6 +47,17 @@ public sealed class UpdateProfileRequestValidator : AbstractValidator<UpdateProf
                 .Must(value => TimeSpan.TryParse(value, out _))
                 .WithMessage("settings.workTime must be a valid time span, for example 08:30:00.");
         });
+
+        When(x => x.Settings is not null && x.Settings.Theme is not null, () =>
+        {
+            RuleFor(x => x.Settings!.Theme!)
+                .Must(value =>
+                {
+                    var normalized = value.Trim().ToLowerInvariant();
+                    return normalized is "light" or "dark";
+                })
+                .WithMessage("settings.theme must be 'light' or 'dark'.");
+        });
     }
 }
 
@@ -73,13 +84,35 @@ public sealed class ActivityRequestValidator : AbstractValidator<ActivityRequest
         RuleFor(x => x.Domain).NotEmpty().MaximumLength(255);
         RuleFor(x => x.Url).NotEmpty();
         RuleFor(x => x.DurationSec).GreaterThanOrEqualTo(0);
+
         RuleFor(x => x.EndedAt)
             .GreaterThanOrEqualTo(x => x.StartedAt)
             .WithMessage("endedAt must be greater than or equal to startedAt.");
+
         When(x => x.Verdict.HasValue, () =>
         {
             RuleFor(x => x.Verdict!.Value).IsInEnum();
         });
+
+        When(x => x.SourceType.HasValue, () =>
+        {
+            RuleFor(x => x.SourceType!.Value).IsInEnum();
+        });
+
+        When(x => x.SourceName is not null, () =>
+        {
+            RuleFor(x => x.SourceName!).MaximumLength(255);
+        });
+    }
+}
+
+public sealed class UpdateActivityVerdictRequestValidator : AbstractValidator<UpdateActivityVerdictRequest>
+{
+    public UpdateActivityVerdictRequestValidator()
+    {
+        RuleFor(x => x.Verdict)
+            .Must(verdict => verdict is ActivityVerdict.work or ActivityVerdict.rest)
+            .WithMessage("verdict must be 'work' or 'rest'.");
     }
 }
 

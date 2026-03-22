@@ -15,9 +15,10 @@ public sealed class User
     public string FullName { get; set; } = string.Empty;
 
     public UserRole Role { get; set; } = UserRole.employee;
-    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
-
     public UserSettings Settings { get; set; } = new();
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     public ICollection<TechStackItem> TechStackItems { get; set; } = new List<TechStackItem>();
     public ICollection<WorkSession> WorkSessions { get; set; } = new List<WorkSession>();
@@ -35,9 +36,12 @@ public sealed class TechStackItem
 {
     public Guid ItemId { get; set; }
     public Guid UserId { get; set; }
+
     [MaxLength(100)]
     public string Name { get; set; } = string.Empty;
+
     public int Position { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 
@@ -48,13 +52,19 @@ public sealed class WorkSession
 {
     public Guid SessionId { get; set; }
     public Guid UserId { get; set; }
+
     public DateOnly WorkDate { get; set; }
     public DateTimeOffset StartedAt { get; set; }
     public DateTimeOffset? EndedAt { get; set; }
+
+    public int TotalSeconds { get; set; }
     public int WorkTimeSec { get; set; }
     public int RestTimeSec { get; set; }
+
     public SessionStatus Status { get; set; } = SessionStatus.active;
+
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     public User User { get; set; } = null!;
     public ICollection<ActivityRecord> ActivityRecords { get; set; } = new List<ActivityRecord>();
@@ -64,8 +74,15 @@ public sealed class ActivityRecord
 {
     public Guid ActivityId { get; set; }
     public Guid SessionId { get; set; }
+
+    public ActivitySourceType SourceType { get; set; } = ActivitySourceType.browser;
+
+    [MaxLength(255)]
+    public string? SourceName { get; set; }
+
     [MaxLength(255)]
     public string Domain { get; set; } = string.Empty;
+
     public string Url { get; set; } = string.Empty;
     public DateTimeOffset StartedAt { get; set; }
     public DateTimeOffset EndedAt { get; set; }
@@ -82,8 +99,10 @@ public sealed class Violation
     public Guid ViolationId { get; set; }
     public Guid ActivityId { get; set; }
     public string ScreenshotPath { get; set; } = string.Empty;
+
     [MaxLength(500)]
     public string Reason { get; set; } = string.Empty;
+
     public bool IsDisputed { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
