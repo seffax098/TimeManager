@@ -1,0 +1,22 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="BackgroundBrush" Color="#F3F1EE" />
+    <SolidColorBrush x:Key="CardBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="ChipBrush" Color="#FBFBFA" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="#FBFBFA" />
+    <SolidColorBrush x:Key="TextBrush" Color="#2B2B2B" />
+    <SolidColorBrush x:Key="VerdictTextBrush" Color="#111827" />
+    <SolidColorBrush x:Key="MutedTextBrush" Color="#6B6B6B" />
+    <SolidColorBrush x:Key="BorderBrush" Color="#D9D6D1" />
+    <SolidColorBrush x:Key="FocusBrush" Color="#B7B0A7" />
+    <SolidColorBrush x:Key="ButtonBrush" Color="#C8C1B8" />
+    <SolidColorBrush x:Key="ButtonTextBrush" Color="#2B2B2B" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#1F4ED8" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#E7E2DC" />
+    <SolidColorBrush x:Key="WorkBrush" Color="#CFE1D4" />
+    <SolidColorBrush x:Key="RestBrush" Color="#EAD1CF" />
+    <SolidColorBrush x:Key="DangerBrush" Color="#E5C0B8" />
+
+    <!-- Explicit brush for ComboBox collapsed toggle in light theme -->
+    <SolidColorBrush x:Key="ComboBoxToggleBrush" Color="#FFFFFF" />
+</ResourceDictionary>

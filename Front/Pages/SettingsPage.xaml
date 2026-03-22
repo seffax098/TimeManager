@@ -1,0 +1,114 @@
+<Page x:Class="Front.Pages.SettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:models="clr-namespace:Front.Models"
+      Title="Настройки"
+      Background="{DynamicResource BackgroundBrush}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,12">
+                <Button x:Name="ThemeButton"
+                        Style="{StaticResource IconButtonStyle}"
+                        Click="ThemeButton_Click">☾</Button>
+            </StackPanel>
+
+            <Border Padding="24" MaxWidth="780" HorizontalAlignment="Center" Style="{StaticResource CardBorderStyle}">
+                <StackPanel>
+                    <TextBlock Text="Настройки"
+                               FontSize="22"
+                               FontWeight="Bold" />
+                    <TextBlock Margin="0,6,0,18"
+                               Style="{StaticResource MutedTextStyle}"
+                               Text="Здесь можно управлять рабочим стеком и задать рабочее время (чч:мм:сс)." />
+
+                    <Border Padding="16" Background="{DynamicResource ChipBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="16">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource SectionTitleStyle}" Text="Стек" />
+
+                            <ListBox x:Name="StackListBox"
+                                     Margin="0,10,0,0"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     ItemsSource="{Binding EditableStack}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type models:EditableTechItem}">
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox Grid.Column="0"
+                                                     Margin="0,0,10,0"
+                                                     Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <Button Grid.Column="1"
+                                                    Margin="0,0,10,0"
+                                                    Style="{StaticResource SecondaryButtonStyle}"
+                                                    Tag="{Binding}"
+                                                    Click="MoveUpButton_Click">↑</Button>
+                                            <Button Grid.Column="2"
+                                                    Style="{StaticResource DangerButtonStyle}"
+                                                    Tag="{Binding}"
+                                                    Click="DeleteButton_Click">Удалить</Button>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                            <Grid Margin="0,2,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="NewTechTextBox"
+                                         Grid.Column="0"
+                                         Margin="0,0,10,0" />
+                                <Button Grid.Column="1"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Click="AddButton_Click">Добавить</Button>
+                            </Grid>
+
+                            <TextBlock Margin="0,10,0,0"
+                                       Style="{StaticResource MutedTextStyle}"
+                                       Text="Можно редактировать, поднимать и удалять элементы списка." />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Margin="0,14,0,0" Padding="16" Background="{DynamicResource ChipBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="16">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource SectionTitleStyle}" Text="Рабочее время" />
+                            <TextBlock Margin="0,10,0,8"
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       Text="Выбор рабочего времени (чч:мм:сс)" />
+                            <Grid MaxWidth="340" HorizontalAlignment="Left">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="14" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="14" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="HoursTextBox" Grid.Column="0" HorizontalContentAlignment="Center" />
+                                <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Text=":" />
+                                <TextBox x:Name="MinutesTextBox" Grid.Column="2" HorizontalContentAlignment="Center" />
+                                <TextBlock Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center" Text=":" />
+                                <TextBox x:Name="SecondsTextBox" Grid.Column="4" HorizontalContentAlignment="Center" />
+                            </Grid>
+                            <TextBlock Margin="0,8,0,0"
+                                       Style="{StaticResource MutedTextStyle}"
+                                       Text="Подсказка: значения будут приведены к формату 00–23, 00–59, 00–59." />
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Margin="0,16,0,0" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Margin="0,0,10,0"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Click="ResetButton_Click">Сбросить</Button>
+                        <Button Style="{StaticResource PrimaryButtonStyle}"
+                                Click="SaveButton_Click">Сохранить</Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

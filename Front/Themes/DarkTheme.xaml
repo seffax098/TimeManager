@@ -1,0 +1,26 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="BackgroundBrush" Color="#0B0D10" />
+    <SolidColorBrush x:Key="CardBrush" Color="#0F1318" />
+    <SolidColorBrush x:Key="ChipBrush" Color="#111418" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="#0E1216" />
+    <SolidColorBrush x:Key="TextBrush" Color="#E6E6E6" />
+    <SolidColorBrush x:Key="VerdictTextBrush" Color="#0F1418" />
+    <SolidColorBrush x:Key="MutedTextBrush" Color="#A9B0B6" />
+    <SolidColorBrush x:Key="BorderBrush" Color="#26303A" />
+    <SolidColorBrush x:Key="FocusBrush" Color="#4D6A88" />
+    <SolidColorBrush x:Key="ButtonBrush" Color="#1A2733" />
+    <SolidColorBrush x:Key="ButtonTextBrush" Color="#E6E6E6" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#2E6CCF" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#1B364F" />
+    <SolidColorBrush x:Key="WorkBrush" Color="#1E6B4A" />
+    <SolidColorBrush x:Key="RestBrush" Color="#6B2B2B" />
+    <SolidColorBrush x:Key="DangerBrush" Color="#8E2B2B" />
+
+    <!-- Override system window brush so popups (combo dropdowns) use dark background in dark theme -->
+    <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#0F1318" />
+    <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#0F1318" />
+
+    <!-- Explicit brush for ComboBox collapsed toggle in dark theme -->
+    <SolidColorBrush x:Key="ComboBoxToggleBrush" Color="#0F1318" />
+</ResourceDictionary>

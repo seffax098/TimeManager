@@ -1,0 +1,42 @@
+<Window x:Class="Front.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Front"
+        Width="1360"
+        Height="900"
+        MinWidth="1180"
+        MinHeight="760"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource BackgroundBrush}">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0"
+                Margin="18"
+                Padding="18"
+                Background="{DynamicResource CardBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="18">
+            <DockPanel LastChildFill="True">
+                <!-- Only navigation buttons in the sidebar -->
+                <StackPanel>
+                    <Button x:Name="RegisterNavButton" Style="{StaticResource NavButtonStyle}" Click="RegisterNavButton_Click">Регистрация</Button>
+                    <Button x:Name="DashboardNavButton" Style="{StaticResource NavButtonStyle}" Click="DashboardNavButton_Click">Анализ дня</Button>
+                    <Button x:Name="AdminNavButton" Style="{StaticResource NavButtonStyle}" Click="AdminNavButton_Click">Админ-панель</Button>
+                    <Button x:Name="ProfileNavButton" Style="{StaticResource NavButtonStyle}" Click="ProfileNavButton_Click">Профиль</Button>
+                    <Button x:Name="SettingsNavButton" Style="{StaticResource NavButtonStyle}" Click="SettingsNavButton_Click">Настройки</Button>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Grid Grid.Column="1" Margin="0,18,18,18">
+            <Frame x:Name="MainFrame"
+                   NavigationUIVisibility="Hidden"
+                   Background="Transparent" />
+        </Grid>
+    </Grid>
+</Window>
