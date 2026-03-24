@@ -137,7 +137,6 @@ public sealed record AdminEmployeeDetailsResponse(
     IReadOnlyList<ViolationResponse> Violations,
     ReportSummaryDto Summary,
     IReadOnlyList<ReportSiteDto> Sites);
-    IReadOnlyList<ReportSiteDto> Sites);
 
 public sealed record ActiveTimerSessionResponse(
     Guid SessionId,

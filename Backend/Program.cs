@@ -147,7 +147,22 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate();
+    
+    // Wait for database to be ready (retry up to 30 seconds)
+    var maxRetries = 30;
+    for (var i = 0; i < maxRetries; i++)
+    {
+        try
+        {
+            dbContext.Database.CanConnect();
+            break;
+        }
+        catch
+        {
+            if (i == maxRetries - 1) throw;
+            Thread.Sleep(1000);
+        }
+    }
 }
 
 var uploadsRoot = Path.Combine(app.Environment.ContentRootPath, "uploads");

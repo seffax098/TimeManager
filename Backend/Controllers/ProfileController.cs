@@ -36,7 +36,6 @@ public sealed class ProfileController(AppDbContext dbContext) : ControllerBase
         [FromBody] UpdateProfileRequest request,
         CancellationToken cancellationToken)
     {
-        // If client sends placeholder swagger values, treat them as nulls
         var fullName = string.Equals(request.FullName, "string", StringComparison.OrdinalIgnoreCase) ? null : request.FullName;
         var settings = request.Settings;
         if (settings is not null)
@@ -65,13 +64,9 @@ public sealed class ProfileController(AppDbContext dbContext) : ControllerBase
             return NotFound();
         }
 
-        var now = DateTimeOffset.UtcNow;
-        var hasChanges = false;
-
         if (!string.IsNullOrWhiteSpace(request.FullName))
         {
             user.FullName = request.FullName.Trim();
-            hasChanges = true;
         }
 
         if (request.Settings is not null)
@@ -82,13 +77,11 @@ public sealed class ProfileController(AppDbContext dbContext) : ControllerBase
                 && TimeSpan.TryParse(request.Settings.WorkTime, out var workTime))
             {
                 user.Settings.WorkTime = workTime;
-                hasChanges = true;
             }
 
             if (!string.IsNullOrWhiteSpace(request.Settings.Theme))
             {
                 user.Settings.Theme = request.Settings.Theme.Trim().ToLowerInvariant();
-                hasChanges = true;
             }
         }
 
@@ -102,20 +95,6 @@ public sealed class ProfileController(AppDbContext dbContext) : ControllerBase
                 .Where(x => !string.IsNullOrWhiteSpace(x) && !string.Equals(x, "string", StringComparison.OrdinalIgnoreCase))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Select((name, idx) => new { Name = name, Position = idx })
-            var oldItems = user.TechStackItems.ToList();
-            dbContext.TechStackItems.RemoveRange(oldItems);
-
-            var newItems = request.TechStack
-                .OrderBy(x => x.Position)
-                .Select(x => new TechStackItem
-                {
-                    ItemId = Guid.NewGuid(),
-                    UserId = user.UserId,
-                    Name = x.Name.Trim(),
-                    Position = x.Position,
-                    CreatedAt = now,
-                    UpdatedAt = now
-                })
                 .ToList();
 
             if (normalized.Count == 0)
@@ -123,7 +102,6 @@ public sealed class ProfileController(AppDbContext dbContext) : ControllerBase
                 return BadRequest(new { message = "techStack must contain at least one non-empty item." });
             }
 
-            // Delete existing items with direct SQL (avoids weird concurrency/ordering issues)
             await dbContext.TechStackItems
                 .Where(x => x.UserId == user.UserId)
                 .ExecuteDeleteAsync(cancellationToken);
@@ -137,23 +115,6 @@ public sealed class ProfileController(AppDbContext dbContext) : ControllerBase
                 CreatedAt = DateTimeOffset.UtcNow,
                 UpdatedAt = DateTimeOffset.UtcNow
             }));
-        }
-
-        try
-        {
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await tx.CommitAsync(cancellationToken);
-        }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            await tx.RollbackAsync(cancellationToken);
-            return BadRequest(new { message = "Concurrency error while updating profile.", detail = ex.InnerException?.Message ?? ex.Message });
-        }
-        catch (DbUpdateException ex)
-        {
-            await tx.RollbackAsync(cancellationToken);
-            return BadRequest(new { message = "Failed to update profile.", detail = ex.InnerException?.Message ?? ex.Message });
-        }
         }
 
         try
