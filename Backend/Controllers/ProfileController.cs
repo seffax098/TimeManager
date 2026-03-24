@@ -96,33 +96,6 @@ public sealed class ProfileController(AppDbContext dbContext) : ControllerBase
 
         if (request.TechStack is not null)
         {
-<<<<<<< HEAD
-            var oldItems = user.TechStackItems.ToList();
-            dbContext.TechStackItems.RemoveRange(oldItems);
-
-            var newItems = request.TechStack
-                .OrderBy(x => x.Position)
-                .Select(x => new TechStackItem
-                {
-                    ItemId = Guid.NewGuid(),
-                    UserId = user.UserId,
-                    Name = x.Name.Trim(),
-                    Position = x.Position,
-                    CreatedAt = now,
-                    UpdatedAt = now
-                })
-                .ToList();
-
-            user.TechStackItems = newItems;
-            await dbContext.TechStackItems.AddRangeAsync(newItems, cancellationToken);
-
-            hasChanges = true;
-        }
-
-        if (hasChanges)
-        {
-            user.UpdatedAt = now;
-=======
             var normalized = request.TechStack
                 .Where(x => !string.IsNullOrWhiteSpace(x.Name))
                 .Select(x => x.Name.Trim())
@@ -150,7 +123,6 @@ public sealed class ProfileController(AppDbContext dbContext) : ControllerBase
                 CreatedAt = DateTimeOffset.UtcNow,
                 UpdatedAt = DateTimeOffset.UtcNow
             }));
->>>>>>> 78027a7 (add get/../active, migration db, update bags)
         }
 
         try

@@ -136,9 +136,6 @@ public sealed record AdminEmployeeDetailsResponse(
     DateOnly Date,
     IReadOnlyList<ViolationResponse> Violations,
     ReportSummaryDto Summary,
-<<<<<<< HEAD
-    IReadOnlyList<ReportSiteDto> Sites);
-=======
     IReadOnlyList<ReportSiteDto> Sites);
 
 public sealed record ActiveTimerSessionResponse(
@@ -152,4 +149,3 @@ public sealed record UpdateProfileRequestV2(
     string? FullName,
     IReadOnlyList<UpdateTechStackItemRequest>? TechStack,
     UpdateSettingsRequest? Settings);
->>>>>>> 78027a7 (add get/../active, migration db, update bags)
