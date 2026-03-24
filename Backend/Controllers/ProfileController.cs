@@ -102,6 +102,20 @@ public sealed class ProfileController(AppDbContext dbContext) : ControllerBase
                 .Where(x => !string.IsNullOrWhiteSpace(x) && !string.Equals(x, "string", StringComparison.OrdinalIgnoreCase))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Select((name, idx) => new { Name = name, Position = idx })
+            var oldItems = user.TechStackItems.ToList();
+            dbContext.TechStackItems.RemoveRange(oldItems);
+
+            var newItems = request.TechStack
+                .OrderBy(x => x.Position)
+                .Select(x => new TechStackItem
+                {
+                    ItemId = Guid.NewGuid(),
+                    UserId = user.UserId,
+                    Name = x.Name.Trim(),
+                    Position = x.Position,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                })
                 .ToList();
 
             if (normalized.Count == 0)
@@ -123,6 +137,23 @@ public sealed class ProfileController(AppDbContext dbContext) : ControllerBase
                 CreatedAt = DateTimeOffset.UtcNow,
                 UpdatedAt = DateTimeOffset.UtcNow
             }));
+        }
+
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+            await tx.CommitAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            await tx.RollbackAsync(cancellationToken);
+            return BadRequest(new { message = "Concurrency error while updating profile.", detail = ex.InnerException?.Message ?? ex.Message });
+        }
+        catch (DbUpdateException ex)
+        {
+            await tx.RollbackAsync(cancellationToken);
+            return BadRequest(new { message = "Failed to update profile.", detail = ex.InnerException?.Message ?? ex.Message });
+        }
         }
 
         try

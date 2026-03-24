@@ -21,6 +21,11 @@ namespace Backend.Migrations
                 .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "activity_source_type", new[] { "browser", "desktop_app", "window", "system" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "activity_verdict", new[] { "work", "rest", "unknown" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "report_status_color", new[] { "green", "yellow", "red" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "session_status", new[] { "active", "paused", "completed" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "user_role", new[] { "employee", "admin" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "activity_verdict", "activity_verdict", new[] { "work", "rest", "unknown" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "report_status_color", "report_status_color", new[] { "green", "yellow", "red" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "session_status", "session_status", new[] { "active", "paused", "completed" });
@@ -76,11 +81,14 @@ namespace Backend.Migrations
 
                     b.Property<ActivityVerdict>("Verdict")
                         .HasColumnType("activity_verdict.activity_verdict")
+                        .HasColumnType("activity_verdict")
                         .HasColumnName("verdict");
 
                     b.HasKey("ActivityId");
 
                     b.HasIndex("Domain");
+                    b.HasIndex("Domain")
+                        .HasDatabaseName("idx_activity_records_domain");
 
                     b.HasIndex("SessionId");
 
@@ -111,6 +119,7 @@ namespace Backend.Migrations
 
                     b.Property<ReportStatusColor>("StatusColor")
                         .HasColumnType("report_status_color.report_status_color")
+                        .HasColumnType("report_status_color")
                         .HasColumnName("status_color");
 
                     b.Property<Guid>("UserId")
@@ -251,11 +260,15 @@ namespace Backend.Migrations
 
                     b.Property<UserRole>("Role")
                         .HasColumnType("user_role.user_role")
+                        .HasColumnType("user_role")
                         .HasColumnName("role");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
+
+                        .HasColumnType("user_role.user_role")
+                        .HasColumnName("role");
 
                     b.HasKey("UserId");
 
@@ -263,6 +276,12 @@ namespace Backend.Migrations
                         .IsUnique();
 
                     b.ToTable("users", (string)null);
+                    b.ToTable("users", null, t =>
+                        {
+                            t.HasCheckConstraint("chk_users_settings_has_work_time", "settings ? 'work_time'");
+
+                            t.HasCheckConstraint("chk_users_settings_theme", "(settings->>'theme') in ('light', 'dark')");
+                        });
                 });
 
             modelBuilder.Entity("Backend.Models.Violation", b =>
@@ -331,6 +350,7 @@ namespace Backend.Migrations
 
                     b.Property<SessionStatus>("Status")
                         .HasColumnType("session_status.session_status")
+                        .HasColumnType("session_status")
                         .HasColumnName("status");
 
                     b.Property<int>("TotalSeconds")
@@ -340,6 +360,10 @@ namespace Backend.Migrations
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
+
+
+                        .HasColumnType("session_status.session_status")
+                        .HasColumnName("status");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
@@ -356,6 +380,8 @@ namespace Backend.Migrations
                     b.HasKey("SessionId");
 
                     b.HasIndex("Status");
+                    b.HasIndex("Status")
+                        .HasDatabaseName("idx_work_sessions_status");
 
                     b.HasIndex("UserId", "WorkDate");
 
