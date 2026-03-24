@@ -21,18 +21,15 @@ namespace Backend.Migrations
                 .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-<<<<<<< HEAD
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "activity_source_type", new[] { "browser", "desktop_app", "window", "system" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "activity_verdict", new[] { "work", "rest", "unknown" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "report_status_color", new[] { "green", "yellow", "red" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "session_status", new[] { "active", "paused", "completed" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "user_role", new[] { "employee", "admin" });
-=======
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "activity_verdict", "activity_verdict", new[] { "work", "rest", "unknown" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "report_status_color", "report_status_color", new[] { "green", "yellow", "red" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "session_status", "session_status", new[] { "active", "paused", "completed" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "user_role", "user_role", new[] { "employee", "admin" });
->>>>>>> 78027a7 (add get/../active, migration db, update bags)
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Backend.Models.ActivityRecord", b =>
@@ -64,7 +61,6 @@ namespace Backend.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("session_id");
 
-<<<<<<< HEAD
                     b.Property<string>("SourceName")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
@@ -74,8 +70,6 @@ namespace Backend.Migrations
                         .HasColumnType("activity_source_type")
                         .HasColumnName("source_type");
 
-=======
->>>>>>> 78027a7 (add get/../active, migration db, update bags)
                     b.Property<DateTimeOffset>("StartedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("started_at");
@@ -86,47 +80,22 @@ namespace Backend.Migrations
                         .HasColumnName("url");
 
                     b.Property<ActivityVerdict>("Verdict")
-<<<<<<< HEAD
-                        .HasColumnType("activity_verdict")
-=======
                         .HasColumnType("activity_verdict.activity_verdict")
->>>>>>> 78027a7 (add get/../active, migration db, update bags)
+                        .HasColumnType("activity_verdict")
                         .HasColumnName("verdict");
 
                     b.HasKey("ActivityId");
 
-<<<<<<< HEAD
+                    b.HasIndex("Domain");
                     b.HasIndex("Domain")
                         .HasDatabaseName("idx_activity_records_domain");
-
-                    b.HasIndex("SessionId")
-                        .HasDatabaseName("idx_activity_records_session_id");
-
-                    b.HasIndex("SourceType")
-                        .HasDatabaseName("idx_activity_records_source_type");
-
-                    b.HasIndex("StartedAt")
-                        .HasDatabaseName("idx_activity_records_started_at");
-
-                    b.HasIndex("Verdict")
-                        .HasDatabaseName("idx_activity_records_verdict");
-
-                    b.HasIndex("SessionId", "StartedAt")
-                        .HasDatabaseName("idx_activity_records_session_started_at");
-
-                    b.ToTable("activity_records", null, t =>
-                        {
-                            t.HasCheckConstraint("chk_activity_records_time", "ended_at >= started_at");
-                        });
-=======
-                    b.HasIndex("Domain");
 
                     b.HasIndex("SessionId");
 
                     b.HasIndex("Verdict");
 
                     b.ToTable("activity_records", (string)null);
->>>>>>> 78027a7 (add get/../active, migration db, update bags)
+                });
                 });
 
             modelBuilder.Entity("Backend.Models.DailyReport", b =>
@@ -149,11 +118,8 @@ namespace Backend.Migrations
                         .HasColumnName("rest_percent");
 
                     b.Property<ReportStatusColor>("StatusColor")
-<<<<<<< HEAD
-                        .HasColumnType("report_status_color")
-=======
                         .HasColumnType("report_status_color.report_status_color")
->>>>>>> 78027a7 (add get/../active, migration db, update bags)
+                        .HasColumnType("report_status_color")
                         .HasColumnName("status_color");
 
                     b.Property<Guid>("UserId")
@@ -166,7 +132,6 @@ namespace Backend.Migrations
 
                     b.HasKey("ReportId");
 
-<<<<<<< HEAD
                     b.HasIndex("ReportDate")
                         .HasDatabaseName("idx_daily_reports_report_date");
 
@@ -174,19 +139,10 @@ namespace Backend.Migrations
                         .HasDatabaseName("idx_daily_reports_user_id");
 
                     b.HasIndex("UserId", "ReportDate")
-                        .IsUnique()
-                        .HasDatabaseName("uq_daily_reports_user_date");
-
-                    b.ToTable("daily_reports", null, t =>
-                        {
-                            t.HasCheckConstraint("chk_daily_reports_total", "(work_percent = 0 and rest_percent = 0) or abs((work_percent + rest_percent) - 100) <= 0.01");
-                        });
-=======
-                    b.HasIndex("UserId", "ReportDate")
                         .IsUnique();
 
                     b.ToTable("daily_reports", (string)null);
->>>>>>> 78027a7 (add get/../active, migration db, update bags)
+                });
                 });
 
             modelBuilder.Entity("Backend.Models.RefreshToken", b =>
@@ -219,28 +175,15 @@ namespace Backend.Migrations
 
                     b.HasKey("TokenId");
 
-<<<<<<< HEAD
                     b.HasIndex("ExpiresAt")
                         .HasDatabaseName("idx_refresh_tokens_expires_at");
 
                     b.HasIndex("TokenHash")
                         .IsUnique();
 
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("idx_refresh_tokens_user_id");
-
-                    b.ToTable("refresh_tokens", null, t =>
-                        {
-                            t.HasCheckConstraint("chk_refresh_tokens_dates", "expires_at > created_at");
-                        });
-=======
-                    b.HasIndex("TokenHash")
-                        .IsUnique();
-
                     b.HasIndex("UserId");
 
                     b.ToTable("refresh_tokens", (string)null);
->>>>>>> 78027a7 (add get/../active, migration db, update bags)
                 });
 
             modelBuilder.Entity("Backend.Models.TechStackItem", b =>
@@ -274,7 +217,6 @@ namespace Backend.Migrations
 
                     b.HasKey("ItemId");
 
-<<<<<<< HEAD
                     b.HasIndex("UserId")
                         .HasDatabaseName("idx_tech_stack_items_user_id");
 
@@ -283,12 +225,7 @@ namespace Backend.Migrations
                         .HasDatabaseName("uq_tech_stack_user_name");
 
                     b.HasIndex("UserId", "Position")
-                        .IsUnique()
-                        .HasDatabaseName("uq_tech_stack_user_position");
-=======
-                    b.HasIndex("UserId", "Position")
                         .IsUnique();
->>>>>>> 78027a7 (add get/../active, migration db, update bags)
 
                     b.ToTable("tech_stack_items", (string)null);
                 });
@@ -322,7 +259,7 @@ namespace Backend.Migrations
                         .HasColumnName("password_hash");
 
                     b.Property<UserRole>("Role")
-<<<<<<< HEAD
+                        .HasColumnType("user_role.user_role")
                         .HasColumnType("user_role")
                         .HasColumnName("role");
 
@@ -330,26 +267,21 @@ namespace Backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-=======
                         .HasColumnType("user_role.user_role")
                         .HasColumnName("role");
 
->>>>>>> 78027a7 (add get/../active, migration db, update bags)
                     b.HasKey("UserId");
 
                     b.HasIndex("Login")
                         .IsUnique();
 
-<<<<<<< HEAD
+                    b.ToTable("users", (string)null);
                     b.ToTable("users", null, t =>
                         {
                             t.HasCheckConstraint("chk_users_settings_has_work_time", "settings ? 'work_time'");
 
                             t.HasCheckConstraint("chk_users_settings_theme", "(settings->>'theme') in ('light', 'dark')");
                         });
-=======
-                    b.ToTable("users", (string)null);
->>>>>>> 78027a7 (add get/../active, migration db, update bags)
                 });
 
             modelBuilder.Entity("Backend.Models.Violation", b =>
@@ -387,12 +319,9 @@ namespace Backend.Migrations
                     b.HasIndex("ActivityId")
                         .IsUnique();
 
-<<<<<<< HEAD
                     b.HasIndex("CreatedAt")
                         .HasDatabaseName("idx_violations_created_at");
 
-=======
->>>>>>> 78027a7 (add get/../active, migration db, update bags)
                     b.ToTable("violations", (string)null);
                 });
 
@@ -420,7 +349,7 @@ namespace Backend.Migrations
                         .HasColumnName("started_at");
 
                     b.Property<SessionStatus>("Status")
-<<<<<<< HEAD
+                        .HasColumnType("session_status.session_status")
                         .HasColumnType("session_status")
                         .HasColumnName("status");
 
@@ -432,11 +361,10 @@ namespace Backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-=======
+
                         .HasColumnType("session_status.session_status")
                         .HasColumnName("status");
 
->>>>>>> 78027a7 (add get/../active, migration db, update bags)
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
@@ -451,31 +379,13 @@ namespace Backend.Migrations
 
                     b.HasKey("SessionId");
 
-<<<<<<< HEAD
+                    b.HasIndex("Status");
                     b.HasIndex("Status")
                         .HasDatabaseName("idx_work_sessions_status");
-
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasDatabaseName("uq_work_sessions_one_open_per_user")
-                        .HasFilter("status in ('active', 'paused')");
-
-                    b.HasIndex("UserId", "WorkDate")
-                        .HasDatabaseName("idx_work_sessions_user_date");
-
-                    b.ToTable("work_sessions", null, t =>
-                        {
-                            t.HasCheckConstraint("chk_work_sessions_time", "ended_at is null or ended_at >= started_at");
-
-                            t.HasCheckConstraint("chk_work_sessions_totals", "total_seconds >= work_time + rest_time");
-                        });
-=======
-                    b.HasIndex("Status");
 
                     b.HasIndex("UserId", "WorkDate");
 
                     b.ToTable("work_sessions", (string)null);
->>>>>>> 78027a7 (add get/../active, migration db, update bags)
                 });
 
             modelBuilder.Entity("Backend.Models.ActivityRecord", b =>

@@ -96,7 +96,12 @@ public sealed class ProfileController(AppDbContext dbContext) : ControllerBase
 
         if (request.TechStack is not null)
         {
-<<<<<<< HEAD
+            var normalized = request.TechStack
+                .Where(x => !string.IsNullOrWhiteSpace(x.Name))
+                .Select(x => x.Name.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x) && !string.Equals(x, "string", StringComparison.OrdinalIgnoreCase))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Select((name, idx) => new { Name = name, Position = idx })
             var oldItems = user.TechStackItems.ToList();
             dbContext.TechStackItems.RemoveRange(oldItems);
 
@@ -111,24 +116,6 @@ public sealed class ProfileController(AppDbContext dbContext) : ControllerBase
                     CreatedAt = now,
                     UpdatedAt = now
                 })
-                .ToList();
-
-            user.TechStackItems = newItems;
-            await dbContext.TechStackItems.AddRangeAsync(newItems, cancellationToken);
-
-            hasChanges = true;
-        }
-
-        if (hasChanges)
-        {
-            user.UpdatedAt = now;
-=======
-            var normalized = request.TechStack
-                .Where(x => !string.IsNullOrWhiteSpace(x.Name))
-                .Select(x => x.Name.Trim())
-                .Where(x => !string.IsNullOrWhiteSpace(x) && !string.Equals(x, "string", StringComparison.OrdinalIgnoreCase))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Select((name, idx) => new { Name = name, Position = idx })
                 .ToList();
 
             if (normalized.Count == 0)
@@ -150,7 +137,23 @@ public sealed class ProfileController(AppDbContext dbContext) : ControllerBase
                 CreatedAt = DateTimeOffset.UtcNow,
                 UpdatedAt = DateTimeOffset.UtcNow
             }));
->>>>>>> 78027a7 (add get/../active, migration db, update bags)
+        }
+
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+            await tx.CommitAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            await tx.RollbackAsync(cancellationToken);
+            return BadRequest(new { message = "Concurrency error while updating profile.", detail = ex.InnerException?.Message ?? ex.Message });
+        }
+        catch (DbUpdateException ex)
+        {
+            await tx.RollbackAsync(cancellationToken);
+            return BadRequest(new { message = "Failed to update profile.", detail = ex.InnerException?.Message ?? ex.Message });
+        }
         }
 
         try
