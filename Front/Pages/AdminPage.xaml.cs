@@ -14,9 +14,42 @@ public partial class AdminPage : Page
     {
         InitializeComponent();
         DataContext = AppState.Current;
+        Loaded += AdminPage_Loaded;
         ThemeManager.ThemeChanged += ThemeManager_ThemeChanged;
         Unloaded += AdminPage_Unloaded;
         UpdateThemeButton();
+    }
+    private async void AdminPage_Loaded(object sender, RoutedEventArgs e)
+    {
+        await LoadEmployeesAsync();
+    }
+
+    private async Task LoadEmployeesAsync()
+    {
+        try
+        {
+            var response = await AppState.Current.GetAdminEmployeesAsync();
+            if (response != null)
+            {
+                var employees = AppState.Current.ConvertAdminEmployeesToEmployeeUsages(response);
+                AppState.Current.Employees = employees;
+            }
+        }
+        catch (System.Net.Http.HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        {
+            MessageBox.Show(
+                "Доступ запрещён: требуется роль admin.",
+                "Админ-панель",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+
+            // Optionally clear list
+            AppState.Current.Employees.Clear();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Не удалось загрузить сотрудников: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 
     private void ThemeManager_ThemeChanged(object? sender, AppTheme e)

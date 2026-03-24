@@ -13,6 +13,30 @@ namespace Backend.Controllers;
 [Route("api/timer")]
 public sealed class TimerController(AppDbContext dbContext) : ControllerBase
 {
+    [HttpGet("active")]
+    public async Task<ActionResult<ActiveTimerSessionResponse?>> GetActive(CancellationToken cancellationToken)
+    {
+        var userId = User.GetRequiredUserId();
+
+        var session = await dbContext.WorkSessions
+            .AsNoTracking()
+            .Where(x => x.UserId == userId && x.Status != SessionStatus.completed)
+            .OrderByDescending(x => x.StartedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (session is null)
+        {
+            return Ok(null);
+        }
+
+        return Ok(new ActiveTimerSessionResponse(
+            session.SessionId,
+            session.UserId,
+            session.WorkDate,
+            session.StartedAt,
+            session.Status));
+    }
+
     [HttpPost("start")]
     public async Task<ActionResult<StartTimerResponse>> Start([FromBody] StartTimerRequest request, CancellationToken cancellationToken)
     {

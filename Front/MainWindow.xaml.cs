@@ -11,7 +11,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         ThemeManager.ThemeChanged += ThemeManager_ThemeChanged;
-        Navigate(new RegisterPage());
+        Navigate(new LoginPage());
     }
 
     private void ThemeManager_ThemeChanged(object? sender, AppTheme e) => UpdateThemeButton();
@@ -20,8 +20,8 @@ public partial class MainWindow : Window
     {
     }
 
-    private void Navigate(Page page) => MainFrame.Navigate(page);
-
+    public void Navigate(Page page) => MainFrame.Navigate(page);
+    private void LoginNavButton_Click(object sender, RoutedEventArgs e) => Navigate(new LoginPage());
     private void RegisterNavButton_Click(object sender, RoutedEventArgs e) => Navigate(new RegisterPage());
     private void DashboardNavButton_Click(object sender, RoutedEventArgs e) => Navigate(new DashboardPage());
     private void AdminNavButton_Click(object sender, RoutedEventArgs e) => Navigate(new AdminPage());

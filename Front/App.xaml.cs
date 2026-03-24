@@ -6,23 +6,36 @@ namespace Front;
 
 public partial class App : Application
 {
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
+        // Global exception handlers (helps diagnose crashes on navigation / API calls)
+        DispatcherUnhandledException += App_DispatcherUnhandledException;
+        AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
         base.OnStartup(e);
 
-        // Apply default theme
-        ThemeManager.ApplyTheme(AppTheme.Light);
+        var baseUrl = "http://localhost:5000"; // можно вынести в конфигурацию
+        AppState.Current.Initialize(baseUrl);
 
-        // Global exception handlers to avoid process exit on UI errors
-        this.DispatcherUnhandledException += App_DispatcherUnhandledException;
-        AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+        var mainWindow = new MainWindow();
+        mainWindow.Show();
+
+        // If token exists from previous run - pre-load profile in background.
+        try
+        {
+            await AppState.Current.TryLoadProfileAfterStartupAsync();
+        }
+        catch
+        {
+            // ignore (message is shown in AppState)
+        }
     }
 
     private void App_DispatcherUnhandledException(object? sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
     {
         try
         {
-            MessageBox.Show($"Произошла ошибка приложения:\n{e.Exception.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"Произошла ошибка приложения:\n{e.Exception}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
         }
         catch
@@ -37,7 +50,7 @@ public partial class App : Application
         {
             if (e.ExceptionObject is Exception ex)
             {
-                MessageBox.Show($"Необработанное исключение домена:\n{ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Необработанное исключение домена:\n{ex}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         catch

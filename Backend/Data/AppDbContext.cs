@@ -34,7 +34,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             entity.Property(x => x.Login).HasColumnName("login");
             entity.Property(x => x.PasswordHash).HasColumnName("password_hash");
             entity.Property(x => x.FullName).HasColumnName("full_name");
-            entity.Property(x => x.Role).HasColumnName("role").HasColumnType("user_role");
+            entity.Property(x => x.Role).HasColumnName("role").HasColumnType("user_role.user_role");
             entity.Property(x => x.CreatedAt).HasColumnName("created_at");
             entity.Property(x => x.UpdatedAt).HasColumnName("updated_at");
             entity.HasIndex(x => x.Login).IsUnique();
@@ -85,7 +85,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             entity.Property(x => x.TotalSeconds).HasColumnName("total_seconds");
             entity.Property(x => x.WorkTimeSec).HasColumnName("work_time");
             entity.Property(x => x.RestTimeSec).HasColumnName("rest_time");
-            entity.Property(x => x.Status).HasColumnName("status").HasColumnType("session_status");
+            entity.Property(x => x.Status).HasColumnName("status").HasColumnType("session_status.session_status");
             entity.Property(x => x.CreatedAt).HasColumnName("created_at");
             entity.Property(x => x.UpdatedAt).HasColumnName("updated_at");
 
@@ -120,7 +120,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             entity.Property(x => x.StartedAt).HasColumnName("started_at");
             entity.Property(x => x.EndedAt).HasColumnName("ended_at");
             entity.Property(x => x.DurationSec).HasColumnName("duration_sec");
-            entity.Property(x => x.Verdict).HasColumnName("verdict").HasColumnType("activity_verdict");
+            entity.Property(x => x.Verdict).HasColumnName("verdict").HasColumnType("activity_verdict.activity_verdict");
             entity.Property(x => x.CreatedAt).HasColumnName("created_at");
 
             entity.HasIndex(x => x.SessionId).HasDatabaseName("idx_activity_records_session_id");
@@ -170,7 +170,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             entity.Property(x => x.ReportDate).HasColumnName("report_date");
             entity.Property(x => x.WorkPercent).HasColumnName("work_percent").HasColumnType("numeric(5,2)");
             entity.Property(x => x.RestPercent).HasColumnName("rest_percent").HasColumnType("numeric(5,2)");
-            entity.Property(x => x.StatusColor).HasColumnName("status_color").HasColumnType("report_status_color");
+            entity.Property(x => x.StatusColor).HasColumnName("status_color").HasColumnType("report_status_color.report_status_color");
             entity.Property(x => x.CreatedAt).HasColumnName("created_at");
 
             entity.HasIndex(x => x.UserId).HasDatabaseName("idx_daily_reports_user_id");

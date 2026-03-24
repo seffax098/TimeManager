@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Front.Models;
 using Front.Services;
+using Front.Contracts;
 
 namespace Front.Pages;
 
@@ -82,34 +83,38 @@ public partial class SettingsPage : Page
         EditableStack.Move(index, index - 1);
     }
 
-    private void SaveButton_Click(object sender, RoutedEventArgs e)
+    private async void SaveButton_Click(object sender, RoutedEventArgs e)
     {
         var hours = Clamp(HoursTextBox.Text, 0, 23);
         var minutes = Clamp(MinutesTextBox.Text, 0, 59);
         var seconds = Clamp(SecondsTextBox.Text, 0, 59);
-
         HoursTextBox.Text = hours.ToString("00");
         MinutesTextBox.Text = minutes.ToString("00");
         SecondsTextBox.Text = seconds.ToString("00");
 
-        _state.WorkStack.Clear();
-        foreach (var item in EditableStack.Where(x => !string.IsNullOrWhiteSpace(x.Name)))
+        var workTime = new TimeSpan(hours, minutes, seconds);
+        var request = new UpdateProfileRequest
         {
-            _state.WorkStack.Add(item.Name.Trim());
-        }
+            FullName = null,
+            Settings = new UpdateSettingsRequest
+            {
+                WorkTime = workTime.ToString(@"hh\:mm\:ss"),
+                Theme = null
+            },
+            TechStack = EditableStack.Select((item, idx) => new UpdateTechStackItemRequest
+            {
+                Name = item.Name,
+                Position = idx
+            }).ToList()
+        };
 
-        _state.WorkTime = new TimeSpan(hours, minutes, seconds);
-
-        MessageBox.Show(
-            $"Сохранено.\nСтек: {_state.WorkStackDisplay}\nРабочее время: {_state.WorkTimeDisplay}",
-            "Настройки",
-            MessageBoxButton.OK,
-            MessageBoxImage.Information);
+        await AppState.Current.UpdateProfileAsync(request);
+        MessageBox.Show("Сохранено.", "Настройки", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
     private void ResetButton_Click(object sender, RoutedEventArgs e)
     {
-        _state.ResetDefaults();
+        //_state.ResetDefaults();
         LoadFromState();
     }
 

@@ -21,6 +21,7 @@ public class EditableTechItem : INotifyPropertyChanged
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
         }
     }
+    public Guid ItemId { get; set; } = Guid.NewGuid();
 
     public event PropertyChangedEventHandler? PropertyChanged;
 }
