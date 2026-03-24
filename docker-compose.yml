@@ -22,10 +22,10 @@ services:
       context: ./Backend
       dockerfile: Dockerfile
     ports:
-      - "1337:1337"
+      - "5000:5000"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:1337
+      - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__DefaultConnection=Host=db;Database=timemanager;Username=postgres;Password=postgres
     depends_on:
       db:
