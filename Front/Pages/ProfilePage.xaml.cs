@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using Front.Services;
+using Front.Contracts;
 
 namespace Front.Pages;
 
@@ -29,19 +30,39 @@ public partial class ProfilePage : Page
 
     private void ThemeButton_Click(object sender, RoutedEventArgs e) => ThemeManager.ToggleTheme();
 
-    private void SaveButton_Click(object sender, RoutedEventArgs e)
+    private async void SaveButton_Click(object sender, RoutedEventArgs e)
     {
         var value = StackTextBox.Text.Trim();
-        if (string.IsNullOrWhiteSpace(value))
+        if (string.IsNullOrWhiteSpace(value)) return;
+
+        var techStack = value
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(x => x.Trim())
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select((name, idx) => new UpdateTechStackItemRequest
+            {
+                Name = name,
+                Position = idx
+            })
+            .ToList();
+
+        if (techStack.Count == 0)
         {
-            StackTextBox.Focus();
+            MessageBox.Show("Укажи хотя бы одну технологию.");
             return;
         }
 
-        AppState.Current.WorkStackDisplay = value;
+        var request = new UpdateProfileRequest
+        {
+            FullName = null,
+            Settings = null,
+            TechStack = techStack
+        };
+
+        await AppState.Current.UpdateProfileAsync(request);
+
         ToastTextBlock.Text = "Сохранено.";
         ToastBorder.Visibility = Visibility.Visible;
-        _toastTimer.Stop();
         _toastTimer.Start();
     }
 

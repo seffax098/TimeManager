@@ -1,6 +1,7 @@
 <Page x:Class="Front.Pages.DashboardPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	  xmlns:services="clr-namespace:Front.Services"
       xmlns:models="clr-namespace:Front.Models"
       Title="Анализ дня"
       Background="{DynamicResource BackgroundBrush}">
@@ -21,9 +22,7 @@
                                    FontSize="12"
                                    Foreground="{DynamicResource MutedTextBrush}" />
                         <Border Margin="0,6,0,0" Style="{StaticResource PillBorderStyle}">
-                            <TextBlock Text="{Binding UserFullName}"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource TextBrush}" />
+							<TextBlock Text="{Binding Source={x:Static services:AppState.Current}, Path=UserFullName}" />
                         </Border>
                     </StackPanel>
                 </Border>

@@ -24,6 +24,7 @@
             <DockPanel LastChildFill="True">
                 <!-- Only navigation buttons in the sidebar -->
                 <StackPanel>
+					<Button x:Name="LoginNavButton" Style="{StaticResource NavButtonStyle}" Click="LoginNavButton_Click">Вход</Button>
                     <Button x:Name="RegisterNavButton" Style="{StaticResource NavButtonStyle}" Click="RegisterNavButton_Click">Регистрация</Button>
                     <Button x:Name="DashboardNavButton" Style="{StaticResource NavButtonStyle}" Click="DashboardNavButton_Click">Анализ дня</Button>
                     <Button x:Name="AdminNavButton" Style="{StaticResource NavButtonStyle}" Click="AdminNavButton_Click">Админ-панель</Button>

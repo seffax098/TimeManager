@@ -31,10 +31,14 @@
                            Foreground="{DynamicResource MutedTextBrush}"
                            Text="Логин" />
                 <TextBox x:Name="LoginTextBox" MinWidth="200" />
+				<TextBlock Margin="0,4,0,6"
+										   Foreground="{DynamicResource MutedTextBrush}"
+										   Text="ФИО" />
+				<TextBox x:Name="FullNameTextBox" Margin="5"/>
 
                 <TextBlock Margin="0,14,0,6"
                            Foreground="{DynamicResource MutedTextBrush}"
-                           Text="Пароль" />
+                           Text="Пароль(не менее 6 СИМВОЛОВ!)" />
                 <PasswordBox x:Name="PasswordTextBox" />
 
                 <Button Margin="0,18,0,0"

@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using Front.Services;
+using Front.Contracts;
 
 namespace Front.Pages;
 
@@ -24,26 +25,29 @@ public partial class RegisterPage : Page
 
     private void ThemeButton_Click(object sender, RoutedEventArgs e) => ThemeManager.ToggleTheme();
 
-    private void RegisterButton_Click(object sender, RoutedEventArgs e)
+    private async void RegisterButton_Click(object sender, RoutedEventArgs e)
     {
         var login = LoginTextBox.Text.Trim();
         var password = PasswordTextBox.Password.Trim();
+        var fullName = FullNameTextBox.Text.Trim();
 
-        if (login.Length < 3)
+        if (login.Length < 3) { MessageBox.Show("Логин не менее 3 символов."); return; }
+        if (password.Length < 6) { MessageBox.Show("Пароль не менее 6 символов."); return; }
+        if (string.IsNullOrWhiteSpace(fullName)) { MessageBox.Show("Введите ФИО."); return; }
+
+        var success = await AppState.Current.RegisterAsync(login, password, fullName);
+        if (success)
         {
-            MessageBox.Show("Логин должен содержать минимум 3 символа.", "Регистрация", MessageBoxButton.OK, MessageBoxImage.Information);
-            return;
+            MessageBox.Show("Регистрация успешна. Теперь войдите.");
+            LoginTextBox.Clear();
+            PasswordTextBox.Clear();
+            FullNameTextBox.Clear();
+            // Можно автоматически перейти на страницу логина (если есть)
         }
-
-        if (password.Length < 6)
+        else
         {
-            MessageBox.Show("Пароль должен содержать минимум 6 символов.", "Регистрация", MessageBoxButton.OK, MessageBoxImage.Information);
-            return;
+            MessageBox.Show("Ошибка регистрации. Возможно, логин занят.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
         }
-
-        MessageBox.Show($"Пользователь {login} зарегистрирован (демо).", "Регистрация", MessageBoxButton.OK, MessageBoxImage.Information);
-        LoginTextBox.Clear();
-        PasswordTextBox.Clear();
     }
 
     private void RegisterPage_Unloaded(object sender, RoutedEventArgs e)
