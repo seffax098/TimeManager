@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile.postgres
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "12345"
+      POSTGRES_PASSWORD: "12345678"
       POSTGRES_DB: timemanager
     ports:
       - "5432:5432"
@@ -26,7 +26,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5000
-      - ConnectionStrings__DefaultConnection=Host=db;Database=timemanager;Username=postgres;Password=12345
+      - ConnectionStrings__DefaultConnection=Host=db;Database=timemanager;Username=postgres;Password=12345678
     depends_on:
       db:
         condition: service_healthy
